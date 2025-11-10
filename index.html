@@ -33,7 +33,7 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: space-between;
+      justify-content: flex-start;
       padding: 16px;
       margin: 20px 0;
     }
@@ -44,13 +44,24 @@
       text-align: center;
     }
 
+    .image-wrapper {
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      background: #f0f0f0;
+      border-radius: 12px;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-top: 12px;
+    }
+
     img {
       width: 100%;
-      height: auto;
+      height: 100%;
+      object-fit: contain; /* ✅ l’image reste entière */
       border-radius: 12px;
-      object-fit: cover;
-      aspect-ratio: 16 / 9;
-      margin-top: 10px;
+      background: white;
     }
 
     .question-info {
@@ -71,6 +82,7 @@
       flex-direction: column;
       gap: 10px;
       width: 100%;
+      margin-top: auto;
     }
 
     button.option {
@@ -114,7 +126,6 @@
       margin-top: 20px;
     }
 
-    /* Responsive ajustement */
     @media (max-width: 500px) {
       .container {
         max-width: 95%;
