@@ -5,10 +5,16 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Quiz Hugo Décrypte</title>
   <style>
+    :root {
+      --blue: #007bff;
+      --bg: #f7f9fc;
+      --text: #333;
+    }
+
     body {
       font-family: "Segoe UI", sans-serif;
-      background-color: #f7f9fc;
-      color: #333;
+      background-color: var(--bg);
+      color: var(--text);
       margin: 0;
       padding: 0;
       display: flex;
@@ -16,68 +22,124 @@
       align-items: center;
       min-height: 100vh;
     }
+
     .container {
       width: 90%;
       max-width: 600px;
+      aspect-ratio: 9 / 16;
       background: white;
-      padding: 20px;
-      margin-top: 40px;
-      border-radius: 16px;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      border-radius: 20px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px;
+      margin: 20px 0;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 1.4rem;
       text-align: center;
     }
+
     img {
       width: 100%;
-      border-radius: 10px;
-      margin-bottom: 20px;
+      height: auto;
+      border-radius: 12px;
+      object-fit: cover;
+      aspect-ratio: 16 / 9;
+      margin-top: 10px;
     }
-    h1 {
-      margin-bottom: 10px;
+
+    .question-info {
+      margin-top: 10px;
+      font-weight: bold;
+      color: #444;
+      font-size: 1rem;
     }
+
+    .question-text {
+      margin: 8px 0 16px;
+      font-size: 1.1rem;
+      text-align: center;
+    }
+
     .options {
       display: flex;
       flex-direction: column;
       gap: 10px;
-      margin-top: 20px;
+      width: 100%;
     }
+
     button.option {
       background: #e9eef6;
       border: none;
       padding: 12px;
-      border-radius: 8px;
+      border-radius: 10px;
       cursor: pointer;
       font-size: 16px;
-      transition: background 0.2s;
+      transition: background 0.2s, transform 0.1s;
     }
+
     button.option:hover {
       background: #d0daee;
+      transform: scale(1.02);
     }
+
+    button.option.selected {
+      background: #bcd4ff;
+    }
+
     .next-btn {
-      margin-top: 20px;
-      background: #007bff;
+      margin-top: 16px;
+      background: var(--blue);
       color: white;
       border: none;
       padding: 12px 24px;
-      border-radius: 8px;
+      border-radius: 10px;
       cursor: pointer;
       font-size: 16px;
       display: none;
+      transition: background 0.2s;
     }
+
     .next-btn:hover {
       background: #0056b3;
     }
+
     .result {
       text-align: left;
       margin-top: 20px;
+    }
+
+    /* Responsive ajustement */
+    @media (max-width: 500px) {
+      .container {
+        max-width: 95%;
+        padding: 12px;
+      }
+      h1 {
+        font-size: 1.2rem;
+      }
+      .question-text {
+        font-size: 1rem;
+      }
+      button.option {
+        font-size: 15px;
+      }
     }
   </style>
 </head>
 <body>
   <div class="container">
     <h1>Quiz Hugo Décrypte</h1>
+
     <div id="quiz">
-      <img id="question-image" src="media/q1.png" alt="Question image" />
-      <h2 id="question-number">Question 1/10</h2>
+      <img id="question-image" src="media/q1.jpg" alt="Question image" />
+      <div class="question-info" id="question-number">Image 1/10</div>
+      <div class="question-text">Quelle est l’origine de cette image ?</div>
       <div class="options" id="options"></div>
       <button class="next-btn" id="next-btn">Question suivante</button>
     </div>
@@ -85,7 +147,7 @@
 
   <script>
     const questions = [
-      {
+     {
         image: "media/q1.png",
         correct: ["Réseaux sociaux"]
       },
@@ -147,7 +209,7 @@
     function loadQuestion() {
       const q = questions[currentQuestion];
       imageEl.src = q.image;
-      questionNumEl.textContent = `Question ${currentQuestion + 1}/10`;
+      questionNumEl.textContent = `Image ${currentQuestion + 1}/10`;
       optionsEl.innerHTML = "";
       optionsList.forEach(option => {
         const btn = document.createElement("button");
@@ -161,9 +223,6 @@
 
     function toggleSelection(button) {
       button.classList.toggle("selected");
-      button.style.background = button.classList.contains("selected")
-        ? "#bcd4ff"
-        : "#e9eef6";
       nextBtn.style.display = "inline-block";
     }
 
