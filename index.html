@@ -148,7 +148,9 @@
     <h1>Quiz Hugo Décrypte</h1>
 
     <div id="quiz">
-      <img id="question-image" src="media/q1.jpg" alt="Question image" />
+      <div class="image-wrapper">
+        <img id="question-image" src="media/q1.jpg" alt="Question image" />
+      </div>
       <div class="question-info" id="question-number">Image 1/10</div>
       <div class="question-text">Quelle est l’origine de cette image ?</div>
       <div class="options" id="options"></div>
@@ -157,8 +159,8 @@
   </div>
 
   <script>
-    const questions = [
-     {
+ const questions = [
+      {
         image: "media/q1.png",
         correct: ["Réseaux sociaux"]
       },
@@ -237,14 +239,16 @@
       nextBtn.style.display = "inline-block";
     }
 
+    // ✅ Nouvelle logique : si au moins une réponse correcte est cochée, c'est bon
     function checkAnswer() {
       const selected = Array.from(document.querySelectorAll(".option.selected")).map(
         b => b.textContent
       );
       const correct = questions[currentQuestion].correct;
-      const isCorrect =
-        selected.length === correct.length &&
-        selected.every(ans => correct.includes(ans));
+
+      // Si au moins une des bonnes réponses est dans la sélection → bon
+      const isCorrect = selected.some(ans => correct.includes(ans));
+
       results.push(isCorrect);
       if (isCorrect) score++;
     }
