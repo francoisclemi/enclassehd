@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Quiz Hugo Décrypte</title>
+  <style>
+    body {
+      font-family: "Segoe UI", sans-serif;
+      background-color: #f7f9fc;
+      color: #333;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+    }
+    .container {
+      width: 90%;
+      max-width: 600px;
+      background: white;
+      padding: 20px;
+      margin-top: 40px;
+      border-radius: 16px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      text-align: center;
+    }
+    img {
+      width: 100%;
+      border-radius: 10px;
+      margin-bottom: 20px;
+    }
+    h1 {
+      margin-bottom: 10px;
+    }
+    .options {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 20px;
+    }
+    button.option {
+      background: #e9eef6;
+      border: none;
+      padding: 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 16px;
+      transition: background 0.2s;
+    }
+    button.option:hover {
+      background: #d0daee;
+    }
+    .next-btn {
+      margin-top: 20px;
+      background: #007bff;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 16px;
+      display: none;
+    }
+    .next-btn:hover {
+      background: #0056b3;
+    }
+    .result {
+      text-align: left;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Quiz Hugo Décrypte</h1>
+    <div id="quiz">
+      <img id="question-image" src="media/q1.jpg" alt="Question image" />
+      <h2 id="question-number">Question 1/10</h2>
+      <div class="options" id="options"></div>
+      <button class="next-btn" id="next-btn">Question suivante</button>
+    </div>
+  </div>
+
+  <script>
+    const questions = [
+      {
+        image: "media/q1.jpg",
+        correct: ["Agence de presse"]
+      },
+      {
+        image: "media/q2.jpg",
+        correct: ["Réseaux sociaux"]
+      },
+      {
+        image: "media/q3.jpg",
+        correct: ["Images tournées par Hugo Décrypte"]
+      },
+      {
+        image: "media/q4.jpg",
+        correct: ["Images d'illustration"]
+      },
+      {
+        image: "media/q5.jpg",
+        correct: ["Agence de presse", "Images d'illustration"]
+      },
+      {
+        image: "media/q6.jpg",
+        correct: ["Réseaux sociaux"]
+      },
+      {
+        image: "media/q7.jpg",
+        correct: ["Images tournées par Hugo Décrypte"]
+      },
+      {
+        image: "media/q8.jpg",
+        correct: ["Images d'illustration"]
+      },
+      {
+        image: "media/q9.jpg",
+        correct: ["Agence de presse"]
+      },
+      {
+        image: "media/q10.jpg",
+        correct: ["Je ne sais pas"]
+      }
+    ];
+
+    const optionsList = [
+      "Agence de presse",
+      "Réseaux sociaux",
+      "Images tournées par Hugo Décrypte",
+      "Images d'illustration",
+      "Je ne sais pas"
+    ];
+
+    let currentQuestion = 0;
+    let score = 0;
+    const results = [];
+
+    const imageEl = document.getElementById("question-image");
+    const questionNumEl = document.getElementById("question-number");
+    const optionsEl = document.getElementById("options");
+    const nextBtn = document.getElementById("next-btn");
+
+    function loadQuestion() {
+      const q = questions[currentQuestion];
+      imageEl.src = q.image;
+      questionNumEl.textContent = `Question ${currentQuestion + 1}/10`;
+      optionsEl.innerHTML = "";
+      optionsList.forEach(option => {
+        const btn = document.createElement("button");
+        btn.textContent = option;
+        btn.classList.add("option");
+        btn.onclick = () => toggleSelection(btn);
+        optionsEl.appendChild(btn);
+      });
+      nextBtn.style.display = "none";
+    }
+
+    function toggleSelection(button) {
+      button.classList.toggle("selected");
+      button.style.background = button.classList.contains("selected")
+        ? "#bcd4ff"
+        : "#e9eef6";
+      nextBtn.style.display = "inline-block";
+    }
+
+    function checkAnswer() {
+      const selected = Array.from(document.querySelectorAll(".option.selected")).map(
+        b => b.textContent
+      );
+      const correct = questions[currentQuestion].correct;
+      const isCorrect =
+        selected.length === correct.length &&
+        selected.every(ans => correct.includes(ans));
+      results.push(isCorrect);
+      if (isCorrect) score++;
+    }
+
+    nextBtn.addEventListener("click", () => {
+      checkAnswer();
+      currentQuestion++;
+      if (currentQuestion < questions.length) {
+        loadQuestion();
+      } else {
+        showResults();
+      }
+    });
+
+    function showResults() {
+      const quizDiv = document.getElementById("quiz");
+      quizDiv.innerHTML = `
+        <h2>Résultats</h2>
+        <p>Score total : <strong>${score}/10</strong></p>
+        <div class="result">
+          ${results
+            .map(
+              (r, i) =>
+                `<p>Image ${i + 1} = ${
+                  r ? "✅ Bonne réponse" : "❌ Mauvaise réponse"
+                }</p>`
+            )
+            .join("")}
+        </div>
+      `;
+    }
+
+    loadQuestion();
+  </script>
+</body>
+</html>
