@@ -108,7 +108,7 @@
       box-shadow: 0 0 10px rgba(0, 200, 83, 0.6);
     }
 
-    #next-btn {
+    #next-btn, #prev-btn {
       padding: 10px;
       background: #007bff;
       color: white;
@@ -119,13 +119,36 @@
       transition: background 0.3s;
     }
 
-    #next-btn:hover {
+    #next-btn:hover, #prev-btn:hover {
       background: #0056b3;
     }
 
+    #nav-buttons {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
     #results {
-      text-align: left;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      height: 100%;
       padding: 20px;
+    }
+
+    #results h2 {
+      font-size: 2rem;
+      margin-bottom: 20px;
+    }
+
+    #results ul {
+      list-style: none;
+      padding: 0;
+      font-size: 1.2rem;
+      line-height: 1.8;
     }
 
     @media (orientation: landscape) {
@@ -176,7 +199,6 @@
     const progress = document.getElementById("progress");
     const optionsContainer = document.getElementById("options-container");
 
-    // 🔍 Détection du mode correction
     const urlParams = new URLSearchParams(window.location.search);
     const showAnswers = urlParams.get("showAnswers") === "true";
 
@@ -191,7 +213,6 @@
         btn.textContent = option;
         btn.classList.add("option-btn");
 
-        // Si mode correction activé
         if (showAnswers && q.correct.includes(option)) {
           btn.classList.add("correct-highlight");
         }
@@ -200,7 +221,37 @@
         optionsContainer.appendChild(btn);
       });
 
-      if (!showAnswers) {
+      if (showAnswers) {
+        const navDiv = document.createElement("div");
+        navDiv.id = "nav-buttons";
+
+        const prevBtn = document.createElement("button");
+        prevBtn.id = "prev-btn";
+        prevBtn.textContent = "Image précédente";
+        prevBtn.disabled = currentQuestion === 0;
+        prevBtn.addEventListener("click", () => {
+          if (currentQuestion > 0) {
+            currentQuestion--;
+            loadQuestion();
+          }
+        });
+
+        const nextBtn = document.createElement("button");
+        nextBtn.id = "next-btn";
+        nextBtn.textContent = currentQuestion < questions.length - 1 ? "Image suivante" : "Résultats";
+        nextBtn.addEventListener("click", () => {
+          if (currentQuestion < questions.length - 1) {
+            currentQuestion++;
+            loadQuestion();
+          } else {
+            showResults();
+          }
+        });
+
+        navDiv.appendChild(prevBtn);
+        navDiv.appendChild(nextBtn);
+        optionsContainer.appendChild(navDiv);
+      } else {
         const nextBtn = document.createElement("button");
         nextBtn.id = "next-btn";
         nextBtn.textContent = "Image suivante";
