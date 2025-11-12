@@ -156,6 +156,12 @@
         font-size: 14px;
       }
     }
+
+    .correct-highlight {
+  border: 3px solid #00c853;
+  box-shadow: 0 0 10px rgba(0, 200, 83, 0.6);
+}
+
   </style>
 </head>
 <body>
@@ -175,123 +181,98 @@
   </div>
 
   <script>
- const questions = [
-      {
-        image: "media/q1.png",
-        correct: ["Réseaux sociaux"]
-      },
-      {
-        image: "media/q2.png",
-        correct: ["Réseaux sociaux"]
-      },
-      {
-        image: "media/q3.png",
-        correct: ["Images tournées par Hugo Décrypte"]
-      },
-      {
-        image: "media/q4.png",
-        correct: ["Images d'illustration","Je ne sais pas"]
-      },
-      {
-        image: "media/q5.png",
-        correct: ["Images tournées par Hugo Décrypte"]
-      },
-      {
-        image: "media/q6.png",
-        correct: ["Images d'illustration","Je ne sais pas"]
-      },
-      {
-        image: "media/q7.png",
-        correct: ["Images tournées par Hugo Décrypte"]
-      },
-      {
-        image: "media/q8.png",
-        correct: ["Agence de presse"]
-      },
-      {
-        image: "media/q9.png",
-        correct: ["Images d'illustration"]
-      },
-      {
-        image: "media/q10.png",
-        correct: ["Images d'illustration","Je ne sais pas"]
-      }
-    ];
-    const optionsList = [
-      "Agence de presse",
-      "Réseaux sociaux",
-      "Images tournées par Hugo Décrypte",
-      "Images d'illustration",
-      "Je ne sais pas"
-    ];
+const questions = [
+  { image: "media/q1.png", correct: ["Réseaux sociaux"] },
+  { image: "media/q2.png", correct: ["Réseaux sociaux"] },
+  { image: "media/q3.png", correct: ["Images tournées par Hugo Décrypte"] },
+  { image: "media/q4.png", correct: ["Images d'illustration", "Je ne sais pas"] },
+  { image: "media/q5.png", correct: ["Images tournées par Hugo Décrypte"] },
+  { image: "media/q6.png", correct: ["Images d'illustration", "Je ne sais pas"] },
+  { image: "media/q7.png", correct: ["Images tournées par Hugo Décrypte"] },
+  { image: "media/q8.png", correct: ["Agence de presse"] },
+  { image: "media/q9.png", correct: ["Images d'illustration"] },
+  { image: "media/q10.png", correct: ["Images d'illustration", "Je ne sais pas"] }
+];
 
-    let currentQuestion = 0;
-    let score = 0;
-    const results = [];
+const options = [
+  "Agence de presse",
+  "Réseaux sociaux",
+  "Images tournées par Hugo Décrypte",
+  "Images d'illustration",
+  "Je ne sais pas"
+];
 
-    const imageEl = document.getElementById("question-image");
-    const questionNumEl = document.getElementById("question-number");
-    const optionsEl = document.getElementById("options");
-    const nextBtn = document.getElementById("next-btn");
+let currentQuestion = 0;
+let score = 0;
+let answers = [];
 
-    function loadQuestion() {
-      const q = questions[currentQuestion];
-      imageEl.src = q.image;
-      questionNumEl.textContent = `Image ${currentQuestion + 1}/10`;
-      optionsEl.innerHTML = "";
-      optionsList.forEach(option => {
-        const btn = document.createElement("button");
-        btn.textContent = option;
-        btn.classList.add("option");
-        btn.onclick = () => toggleSelection(btn);
-        optionsEl.appendChild(btn);
-      });
-      nextBtn.style.display = "none";
+const container = document.getElementById("quiz-container");
+const img = document.getElementById("question-image");
+const optionsContainer = document.getElementById("options");
+const nextBtn = document.getElementById("next-btn");
+const progress = document.getElementById("progress");
+
+// 🔍 Détection du paramètre d'URL
+const urlParams = new URLSearchParams(window.location.search);
+const showAnswers = urlParams.get("showAnswers") === "true";
+
+function loadQuestion() {
+  const q = questions[currentQuestion];
+  img.src = q.image;
+  progress.textContent = `Image ${currentQuestion + 1}/${questions.length}`;
+  optionsContainer.innerHTML = "";
+
+  options.forEach(option => {
+    const btn = document.createElement("button");
+    btn.textContent = option;
+    btn.classList.add("option-btn");
+
+    // 🔸 Si mode correction activé → on entoure les bonnes réponses
+    if (showAnswers && q.correct.includes(option)) {
+      btn.classList.add("correct-highlight");
     }
 
-    function toggleSelection(button) {
-      button.classList.toggle("selected");
-      nextBtn.style.display = "inline-block";
-    }
+    btn.addEventListener("click", () => toggleSelection(btn, option));
+    optionsContainer.appendChild(btn);
+  });
+}
 
-    function checkAnswer() {
-      const selected = Array.from(document.querySelectorAll(".option.selected")).map(
-        b => b.textContent
-      );
-      const correct = questions[currentQuestion].correct;
-      const isCorrect = selected.some(ans => correct.includes(ans));
-      results.push(isCorrect);
-      if (isCorrect) score++;
-    }
+function toggleSelection(btn, option) {
+  if (showAnswers) return; // 🔒 Désactive les clics en mode correction
 
-    nextBtn.addEventListener("click", () => {
-      checkAnswer();
-      currentQuestion++;
-      if (currentQuestion < questions.length) {
-        loadQuestion();
-      } else {
-        showResults();
-      }
-    });
+  btn.classList.toggle("selected");
+}
 
-    function showResults() {
-      document.querySelector(".container").innerHTML = `
-        <div class="result">
-          <h2>Résultats</h2>
-          <p>Score total : <strong>${score}/10</strong></p>
-          ${results
-            .map(
-              (r, i) =>
-                `<p>Image ${i + 1} = ${
-                  r ? "✅ Bonne réponse" : "❌ Mauvaise réponse"
-                }</p>`
-            )
-            .join("")}
-        </div>
-      `;
-    }
+nextBtn.addEventListener("click", () => {
+  if (!showAnswers) checkAnswer();
 
+  currentQuestion++;
+  if (currentQuestion < questions.length) {
     loadQuestion();
+  } else {
+    showResults();
+  }
+});
+
+function checkAnswer() {
+  const selected = Array.from(document.querySelectorAll(".selected")).map(b => b.textContent);
+  const correct = questions[currentQuestion].correct;
+  const isCorrect = selected.some(s => correct.includes(s));
+
+  answers.push(isCorrect ? "Bonne réponse" : "Mauvaise réponse");
+  if (isCorrect) score++;
+}
+
+function showResults() {
+  container.innerHTML = `
+    <h2>Résultat : ${score}/10</h2>
+    <ul>
+      ${answers.map((res, i) => `<li>Image ${i + 1} : ${res}</li>`).join("")}
+    </ul>
+  `;
+}
+
+loadQuestion();
   </script>
 </body>
 </html>
