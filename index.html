@@ -14,7 +14,18 @@
       align-items: center;
       height: 100vh;
     }
+    
+.correct-text {
+  color: #00c853; /* vert */
+  font-weight: bold;
+}
 
+.incorrect-text {
+  color: #d50000; /* rouge */
+  font-weight: bold;
+}
+
+    
     #quiz-container {
       width: 90vw;
       height: 90vh;
@@ -306,21 +317,23 @@
       if (isCorrect) score++;
     }
 
-    function showResults() {
-      const resultHTML = `
-        <div id="results">
-          <h2>Résultat : ${score}/${questions.length}</h2>
-          <ul>
-            ${answers.map((res, i) => `
-              <li>
-                <img src="${questions[i].image}" alt="Image ${i+1}">
-                <span>Image ${i + 1} : ${res}</span>
-              </li>`).join("")}
-          </ul>
-        </div>
-      `;
-      document.getElementById("quiz-container").innerHTML = resultHTML;
-    }
+function showResults() {
+  const resultHTML = `
+    <div id="results">
+      <h2>Résultat : ${score}/${questions.length}</h2>
+      <ul>
+        ${answers.map((res, i) => `
+          <li>
+            <img src="${questions[i].image}" alt="Image ${i+1}">
+            <span class="${res === "Bonne réponse" ? "correct-text" : "incorrect-text"}">
+              Image ${i + 1} : ${res}
+            </span>
+          </li>`).join("")}
+      </ul>
+    </div>
+  `;
+  document.getElementById("quiz-container").innerHTML = resultHTML;
+}
 
     loadQuestion();
   </script>
