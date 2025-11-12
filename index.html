@@ -5,274 +5,235 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Quiz Hugo Décrypte</title>
   <style>
-    :root {
-      --blue: #007bff;
-      --bg: #f7f9fc;
-      --text: #333;
-    }
-
     body {
-      font-family: "Segoe UI", sans-serif;
-      background-color: var(--bg);
-      color: var(--text);
       margin: 0;
-      padding: 0;
+      font-family: "Arial", sans-serif;
+      background-color: #f9f9f9;
       display: flex;
       justify-content: center;
       align-items: center;
-      min-height: 100vh;
+      height: 100vh;
+      overflow: hidden;
     }
 
-    .container {
-      width: 90%;
-      max-width: 600px;
-      aspect-ratio: 9 / 16;
-      background: white;
-      border-radius: 20px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    #quiz-container {
+      width: 90vw;
+      height: 90vh;
+      max-width: 500px;
       display: flex;
       flex-direction: column;
+      border-radius: 16px;
       overflow: hidden;
-    }
-
-    /* --- IMAGE (2/3 de la hauteur) --- */
-    .image-section {
-      height: 66.6%;
-      flex-shrink: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: #f0f0f0;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .image-wrapper {
-      width: 100%;
-      height: 100%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
       background: white;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
     }
 
-    img {
+    #image-container {
+      flex: 2;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      background: #000;
+    }
+
+    #question-image {
       max-width: 100%;
       max-height: 100%;
-      width: auto;
-      height: auto;
       object-fit: contain;
-      display: block;
     }
 
-    .question-info {
+    #question-text {
+      color: white;
+      background: rgba(0, 0, 0, 0.5);
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-size: 1rem;
+      margin-top: 6px;
+    }
+
+    #progress {
       position: absolute;
-      bottom: 8px;
-      right: 12px;
-      font-weight: bold;
-      background: rgba(255, 255, 255, 0.8);
-      padding: 4px 8px;
+      top: 10px;
+      left: 10px;
+      color: white;
+      background: rgba(0, 0, 0, 0.6);
+      padding: 4px 10px;
       border-radius: 8px;
       font-size: 0.9rem;
     }
 
-    /* --- REPONSES (1/3 de la hauteur) --- */
-    .question-section {
-      height: 33.4%;
-      flex-shrink: 0;
+    #options-container {
+      flex: 1;
       display: flex;
       flex-direction: column;
-      justify-content: space-between;
-      padding: 10px 16px;
-      box-sizing: border-box;
+      justify-content: space-evenly;
+      padding: 10px 20px;
+      background: #f0f0f0;
     }
 
-    .question-text {
-      font-size: 1.1rem;
-      font-weight: bold;
-      text-align: center;
-      margin: 4px 0;
-    }
-
-    .options {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      width: 100%;
-      flex-grow: 1;
-      justify-content: center;
-    }
-
-    button.option {
-      background: #e9eef6;
-      border: none;
-      padding: 10px;
+    .option-btn {
+      background: white;
+      border: 2px solid #ccc;
       border-radius: 10px;
+      padding: 8px;
+      font-size: 1rem;
       cursor: pointer;
-      font-size: 15px;
-      transition: background 0.2s, transform 0.1s;
+      transition: all 0.2s;
     }
 
-    button.option:hover {
-      background: #d0daee;
-      transform: scale(1.02);
+    .option-btn:hover {
+      background: #e8e8e8;
     }
 
-    button.option.selected {
-      background: #bcd4ff;
+    .selected {
+      border-color: #007bff;
+      background: #e3f2fd;
     }
 
-    .next-btn {
-      background: var(--blue);
+    .correct-highlight {
+      border: 3px solid #00c853;
+      box-shadow: 0 0 10px rgba(0, 200, 83, 0.6);
+    }
+
+    #next-btn {
+      padding: 10px;
+      margin-top: 6px;
+      background: #007bff;
       color: white;
       border: none;
-      padding: 10px 20px;
       border-radius: 10px;
+      font-size: 1rem;
       cursor: pointer;
-      font-size: 15px;
-      display: none;
-      align-self: center;
-      transition: background 0.2s;
-      margin-top: 6px;
+      transition: background 0.3s;
     }
 
-    .next-btn:hover {
+    #next-btn:hover {
       background: #0056b3;
     }
 
-    .result {
+    #results {
       text-align: left;
       padding: 20px;
     }
 
-    @media (max-width: 600px) {
-      .container {
-        max-width: 95%;
-      }
-      .question-text {
-        font-size: 1rem;
-      }
-      button.option {
-        font-size: 14px;
+    @media (orientation: landscape) {
+      #quiz-container {
+        height: 80vh;
+        max-width: 700px;
       }
     }
-
-    .correct-highlight {
-  border: 3px solid #00c853;
-  box-shadow: 0 0 10px rgba(0, 200, 83, 0.6);
-}
-
   </style>
 </head>
 <body>
-  <div class="container">
-    <div class="image-section">
-      <div class="image-wrapper">
-        <img id="question-image" src="media/q1.jpg" alt="Question image" />
-      </div>
-      <div class="question-info" id="question-number">Image 1/10</div>
+  <div id="quiz-container">
+    <div id="image-container">
+      <div id="progress"></div>
+      <img id="question-image" src="" alt="Question" />
+      <div id="question-text">Quelle est l’origine de cette image ?</div>
     </div>
-
-    <div class="question-section">
-      <div class="question-text">Quelle est l’origine de cette image ?</div>
-      <div class="options" id="options"></div>
-      <button class="next-btn" id="next-btn">Image suivante</button>
-    </div>
+    <div id="options-container"></div>
   </div>
 
   <script>
-const questions = [
-  { image: "media/q1.png", correct: ["Réseaux sociaux"] },
-  { image: "media/q2.png", correct: ["Réseaux sociaux"] },
-  { image: "media/q3.png", correct: ["Images tournées par Hugo Décrypte"] },
-  { image: "media/q4.png", correct: ["Images d'illustration", "Je ne sais pas"] },
-  { image: "media/q5.png", correct: ["Images tournées par Hugo Décrypte"] },
-  { image: "media/q6.png", correct: ["Images d'illustration", "Je ne sais pas"] },
-  { image: "media/q7.png", correct: ["Images tournées par Hugo Décrypte"] },
-  { image: "media/q8.png", correct: ["Agence de presse"] },
-  { image: "media/q9.png", correct: ["Images d'illustration"] },
-  { image: "media/q10.png", correct: ["Images d'illustration", "Je ne sais pas"] }
-];
+    const questions = [
+      { image: "media/q1.png", correct: ["Réseaux sociaux"] },
+      { image: "media/q2.png", correct: ["Réseaux sociaux"] },
+      { image: "media/q3.png", correct: ["Images tournées par Hugo Décrypte"] },
+      { image: "media/q4.png", correct: ["Images d'illustration","Je ne sais pas"] },
+      { image: "media/q5.png", correct: ["Images tournées par Hugo Décrypte"] },
+      { image: "media/q6.png", correct: ["Images d'illustration","Je ne sais pas"] },
+      { image: "media/q7.png", correct: ["Images tournées par Hugo Décrypte"] },
+      { image: "media/q8.png", correct: ["Agence de presse"] },
+      { image: "media/q9.png", correct: ["Images d'illustration"] },
+      { image: "media/q10.png", correct: ["Images d'illustration","Je ne sais pas"] }
+    ];
 
-const options = [
-  "Agence de presse",
-  "Réseaux sociaux",
-  "Images tournées par Hugo Décrypte",
-  "Images d'illustration",
-  "Je ne sais pas"
-];
+    const options = [
+      "Agence de presse",
+      "Réseaux sociaux",
+      "Images tournées par Hugo Décrypte",
+      "Images d'illustration",
+      "Je ne sais pas"
+    ];
 
-let currentQuestion = 0;
-let score = 0;
-let answers = [];
+    let currentQuestion = 0;
+    let score = 0;
+    let answers = [];
 
-const container = document.getElementById("quiz-container");
-const img = document.getElementById("question-image");
-const optionsContainer = document.getElementById("options");
-const nextBtn = document.getElementById("next-btn");
-const progress = document.getElementById("progress");
+    const img = document.getElementById("question-image");
+    const progress = document.getElementById("progress");
+    const optionsContainer = document.getElementById("options-container");
 
-// 🔍 Détection du paramètre d'URL
-const urlParams = new URLSearchParams(window.location.search);
-const showAnswers = urlParams.get("showAnswers") === "true";
+    // 🔍 Détection du mode correction
+    const urlParams = new URLSearchParams(window.location.search);
+    const showAnswers = urlParams.get("showAnswers") === "true";
 
-function loadQuestion() {
-  const q = questions[currentQuestion];
-  img.src = q.image;
-  progress.textContent = `Image ${currentQuestion + 1}/${questions.length}`;
-  optionsContainer.innerHTML = "";
+    function loadQuestion() {
+      const q = questions[currentQuestion];
+      img.src = q.image;
+      progress.textContent = `Image ${currentQuestion + 1}/${questions.length}`;
+      optionsContainer.innerHTML = "";
 
-  options.forEach(option => {
-    const btn = document.createElement("button");
-    btn.textContent = option;
-    btn.classList.add("option-btn");
+      options.forEach(option => {
+        const btn = document.createElement("button");
+        btn.textContent = option;
+        btn.classList.add("option-btn");
 
-    // 🔸 Si mode correction activé → on entoure les bonnes réponses
-    if (showAnswers && q.correct.includes(option)) {
-      btn.classList.add("correct-highlight");
+        // Si mode correction activé
+        if (showAnswers && q.correct.includes(option)) {
+          btn.classList.add("correct-highlight");
+        }
+
+        btn.addEventListener("click", () => toggleSelection(btn, option));
+        optionsContainer.appendChild(btn);
+      });
+
+      if (!showAnswers) {
+        const nextBtn = document.createElement("button");
+        nextBtn.id = "next-btn";
+        nextBtn.textContent = "Image suivante";
+        nextBtn.addEventListener("click", nextQuestion);
+        optionsContainer.appendChild(nextBtn);
+      }
     }
 
-    btn.addEventListener("click", () => toggleSelection(btn, option));
-    optionsContainer.appendChild(btn);
-  });
-}
+    function toggleSelection(btn, option) {
+      if (showAnswers) return;
+      btn.classList.toggle("selected");
+    }
 
-function toggleSelection(btn, option) {
-  if (showAnswers) return; // 🔒 Désactive les clics en mode correction
+    function nextQuestion() {
+      checkAnswer();
+      currentQuestion++;
+      if (currentQuestion < questions.length) {
+        loadQuestion();
+      } else {
+        showResults();
+      }
+    }
 
-  btn.classList.toggle("selected");
-}
+    function checkAnswer() {
+      const selected = Array.from(document.querySelectorAll(".selected")).map(b => b.textContent);
+      const correct = questions[currentQuestion].correct;
+      const isCorrect = selected.some(s => correct.includes(s));
 
-nextBtn.addEventListener("click", () => {
-  if (!showAnswers) checkAnswer();
+      answers.push(isCorrect ? "Bonne réponse" : "Mauvaise réponse");
+      if (isCorrect) score++;
+    }
 
-  currentQuestion++;
-  if (currentQuestion < questions.length) {
+    function showResults() {
+      document.getElementById("quiz-container").innerHTML = `
+        <div id="results">
+          <h2>Résultat : ${score}/10</h2>
+          <ul>
+            ${answers.map((res, i) => `<li>Image ${i + 1} : ${res}</li>`).join("")}
+          </ul>
+        </div>
+      `;
+    }
+
     loadQuestion();
-  } else {
-    showResults();
-  }
-});
-
-function checkAnswer() {
-  const selected = Array.from(document.querySelectorAll(".selected")).map(b => b.textContent);
-  const correct = questions[currentQuestion].correct;
-  const isCorrect = selected.some(s => correct.includes(s));
-
-  answers.push(isCorrect ? "Bonne réponse" : "Mauvaise réponse");
-  if (isCorrect) score++;
-}
-
-function showResults() {
-  container.innerHTML = `
-    <h2>Résultat : ${score}/10</h2>
-    <ul>
-      ${answers.map((res, i) => `<li>Image ${i + 1} : ${res}</li>`).join("")}
-    </ul>
-  `;
-}
-
-loadQuestion();
   </script>
 </body>
 </html>
