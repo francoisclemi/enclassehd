@@ -271,7 +271,7 @@
 
         const nextBtn = document.createElement("button");
         nextBtn.id = "next-btn";
-        nextBtn.textContent = currentQuestion < questions.length - 1 ? "Image suivante" : "Résultats";
+        nextBtn.textContent = currentQuestion < questions.length - 1 ? "SUIVANT" : "Résultats";
         nextBtn.addEventListener("click", () => {
           if (currentQuestion < questions.length - 1) {
             currentQuestion++;
@@ -287,7 +287,7 @@
       } else {
         const nextBtn = document.createElement("button");
         nextBtn.id = "next-btn";
-        nextBtn.textContent = "Image suivante";
+        nextBtn.textContent = "SUIVANT";
         nextBtn.addEventListener("click", nextQuestion);
         optionsContainer.appendChild(nextBtn);
       }
