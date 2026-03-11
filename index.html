@@ -44,7 +44,7 @@
     #question-image {
       width: 100%;
       height: 100%;
-      object-fit: contain; 
+      object-fit: contain; /* L'image dans le quiz reste propre */
     }
 
     #zoom-hint {
@@ -135,14 +135,14 @@
     #prev-btn { background: #6c757d; color: white; }
     #next-btn { background: #007bff; color: white; }
 
-    /* --- LIGHTBOX PLEIN ÉCRAN SIMPLIFIÉ --- */
+    /* --- LIGHTBOX FORCÉE EN PLEIN ÉCRAN --- */
     #lightbox {
       position: fixed;
       top: 0;
       left: 0;
       width: 100vw;
       height: 100dvh;
-      background: rgba(0, 0, 0, 0.95);
+      background: rgba(0, 0, 0, 1); /* Fond noir total */
       display: none;
       justify-content: center;
       align-items: center;
@@ -151,9 +151,11 @@
     }
 
     #lightbox img {
-      max-width: 100%;
-      max-height: 100%;
-      object-fit: contain;
+      width: 100%;
+      height: 100%;
+      /* object-fit: cover force l'image à remplir tout l'écran, 
+         quitte à l'agrandir fortement (zoom) */
+      object-fit: cover; 
     }
 
     #results { padding: 20px; text-align: center; height: 100%; overflow-y: auto; }
@@ -164,13 +166,13 @@
 <body>
 
   <div id="lightbox">
-    <img id="zoom-img" src="" alt="Plein écran" />
+    <img id="zoom-img" src="" alt="Plein écran forcé" />
   </div>
 
   <div id="quiz-container">
     <div id="image-container">
       <div id="progress"></div>
-      <div id="zoom-hint">🔍 Plein écran</div>
+      <div id="zoom-hint">🔍 Zoom plein écran</div>
       <img id="question-image" src="" alt="Question" />
       <div id="question-text">Quelle est l’origine de cette image ?</div>
     </div>
