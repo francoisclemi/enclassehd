@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>Quiz Hugo Décrypte</title>
   <style>
     body {
@@ -13,22 +13,14 @@
       justify-content: center;
       align-items: center;
       height: 100vh;
+      height: 100dvh; 
+      overflow: hidden;
     }
     
-.correct-text {
-  color: #00c853; /* vert */
-  font-weight: bold;
-}
-
-.incorrect-text {
-  color: #d50000; /* rouge */
-  font-weight: bold;
-}
-
-    
     #quiz-container {
-      width: 90vw;
-      height: 90vh;
+      width: 95vw;
+      height: 94vh;
+      height: 94dvh;
       max-width: 500px;
       display: flex;
       flex-direction: column;
@@ -36,18 +28,35 @@
       overflow: hidden;
       background: white;
       box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-      position: relative;
     }
 
+    /* PRIORITÉ À L'IMAGE : Elle prend tout l'espace disponible */
     #image-container {
-      flex: 2;
-      display: flex;
-      flex-direction: column;
-      justify-content: flex-start;
-      align-items: center;
+      flex-grow: 1; 
+      flex-shrink: 1;
       background: #000;
       position: relative;
-      height: 66.6%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden;
+    }
+
+    #question-image {
+      width: 100%;
+      height: 100%;
+      /* L'image remplit la hauteur max sans déborder ni compresser le bas */
+      object-fit: contain; 
+    }
+
+    /* ZONE BASSE : Taille fixe/automatique, elle ne rétrécit jamais */
+    #interactive-area {
+      flex-shrink: 0; 
+      display: flex;
+      flex-direction: column;
+      background: #f0f0f0;
+      padding: 12px;
+      gap: 8px;
     }
 
     #progress {
@@ -58,138 +67,76 @@
       background: rgba(0, 0, 0, 0.6);
       padding: 4px 10px;
       border-radius: 8px;
-      font-size: 0.9rem;
-      z-index: 2;
-    }
-
-    #question-image {
-      width: 100%;
-      height: 100%;
-      object-fit: contain;
-      background-color: black;
+      font-size: 0.8rem;
     }
 
     #question-text {
       position: absolute;
-      bottom: 8px;
+      bottom: 10px;
       left: 50%;
       transform: translateX(-50%);
       color: white;
-      background: rgba(0, 0, 0, 0.5);
-      padding: 8px 12px;
+      background: rgba(0, 0, 0, 0.7);
+      padding: 6px 12px;
       border-radius: 8px;
-      font-size: 1rem;
+      font-size: 0.85rem;
       text-align: center;
+      width: 80%;
     }
 
-    #options-container {
-      flex: 1;
-      height: 33.3%;
+    #button-stack {
       display: flex;
       flex-direction: column;
-      justify-content: space-evenly;
-      padding: 10px 20px;
-      background: #f0f0f0;
-      box-sizing: border-box;
+      gap: 6px;
     }
 
     .option-btn {
       background: white;
-      border: 2px solid #ccc;
-      border-radius: 10px;
-      padding: 8px;
-      font-size: 1rem;
+      border: 1.5px solid #ccc;
+      border-radius: 8px;
+      padding: 12px;
+      font-size: 0.9rem;
       cursor: pointer;
-      transition: all 0.2s;
+      text-align: left;
     }
 
-    .option-btn:hover {
-      background: #e8e8e8;
-    }
+    .selected { border-color: #007bff; background: #e3f2fd; font-weight: bold; }
+    .correct-highlight { border: 2.5px solid #00c853; background: #f1f8f4; }
 
-    .selected {
-      border-color: #007bff;
-      background: #e3f2fd;
-    }
-
-    .correct-highlight {
-      border: 3px solid #00c853;
-      box-shadow: 0 0 10px rgba(0, 200, 83, 0.6);
-    }
-
-    #next-btn, #prev-btn {
-      padding: 10px;
-      background: #007bff;
-      color: white;
-      border: none;
-      border-radius: 10px;
-      font-size: 1rem;
-      cursor: pointer;
-      transition: background 0.3s;
-    }
-
-    #next-btn:hover, #prev-btn:hover {
-      background: #0056b3;
-    }
-
-    #nav-buttons {
+    #nav-bar {
       display: flex;
       justify-content: space-between;
       gap: 10px;
+      padding-top: 8px;
+      border-top: 1px solid #ddd;
     }
 
+    .nav-btn {
+      flex: 1;
+      padding: 15px;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    #prev-btn { background: #6c757d; color: white; }
+    #prev-btn:disabled { opacity: 0.3; }
+    #next-btn { background: #007bff; color: white; }
+
+    /* Style pour les résultats */
     #results {
-      display: flex;
-      flex-direction: column;
-      justify-content: flex-start;
-      align-items: center;
-      text-align: center;
-      height: 100%;
       padding: 20px;
       overflow-y: auto;
+      text-align: center;
+      height: 100%;
     }
-
-    #results h2 {
-      font-size: 2rem;
-      margin-bottom: 20px;
-    }
-
-    #results ul {
-      list-style: none;
-      padding: 0;
-      margin: 0;
-      width: 100%;
-    }
-
     #results li {
-      display: flex;
-      align-items: center;
-      justify-content: flex-start;
-      gap: 10px;
-      background: #f7f7f7;
-      border-radius: 10px;
-      padding: 8px;
-      margin-bottom: 8px;
-      font-size: 1.1rem;
+      display: flex; align-items: center; gap: 10px;
+      background: #eee; margin-bottom: 8px; padding: 8px; border-radius: 8px;
     }
-
-    #results img {
-      height: 60px;
-      width: auto;
-      border-radius: 6px;
-      border: 2px solid #ddd;
-      flex-shrink: 0;
-    }
-
-    @media (orientation: landscape) {
-      #quiz-container {
-        height: 80vh;
-        max-width: 700px;
-      }
-      #results img {
-        height: 50px;
-      }
-    }
+    #results img { height: 45px; width: 60px; object-fit: cover; border-radius: 4px; }
   </style>
 </head>
 <body>
@@ -199,7 +146,14 @@
       <img id="question-image" src="" alt="Question" />
       <div id="question-text">Quelle est l’origine de cette image ?</div>
     </div>
-    <div id="options-container"></div>
+    
+    <div id="interactive-area">
+      <div id="button-stack"></div>
+      <div id="nav-bar">
+        <button id="prev-btn" class="nav-btn">◀ Précédent</button>
+        <button id="next-btn" class="nav-btn">Suivant ▶</button>
+      </div>
+    </div>
   </div>
 
   <script>
@@ -216,21 +170,16 @@
       { image: "media/q10.png", correct: ["Banque d'images d'illustration","Je ne sais pas"] }
     ];
 
-    const options = [
-      "Agence de presse",
-      "Réseaux sociaux",
-      "Images tournées par Hugo Décrypte",
-      "Banque d'images d'illustration",
-      "Je ne sais pas"
-    ];
+    const options = ["Agence de presse", "Réseaux sociaux", "Images tournées par Hugo Décrypte", "Banque d'images d'illustration", "Je ne sais pas"];
 
     let currentQuestion = 0;
-    let score = 0;
     let answers = [];
 
     const img = document.getElementById("question-image");
     const progress = document.getElementById("progress");
-    const optionsContainer = document.getElementById("options-container");
+    const buttonStack = document.getElementById("button-stack");
+    const nextBtn = document.getElementById("next-btn");
+    const prevBtn = document.getElementById("prev-btn");
 
     const urlParams = new URLSearchParams(window.location.search);
     const showAnswers = urlParams.get("showAnswers") === "true";
@@ -238,102 +187,66 @@
     function loadQuestion() {
       const q = questions[currentQuestion];
       img.src = q.image;
-      progress.textContent = `Image ${currentQuestion + 1}/${questions.length}`;
-      optionsContainer.innerHTML = "";
-
+      progress.textContent = `${currentQuestion + 1} / ${questions.length}`;
+      
+      buttonStack.innerHTML = "";
       options.forEach(option => {
         const btn = document.createElement("button");
         btn.textContent = option;
         btn.classList.add("option-btn");
-
-        if (showAnswers && q.correct.includes(option)) {
-          btn.classList.add("correct-highlight");
-        }
-
-        btn.addEventListener("click", () => toggleSelection(btn, option));
-        optionsContainer.appendChild(btn);
+        if (answers[currentQuestion] && answers[currentQuestion].selected === option) btn.classList.add("selected");
+        if (showAnswers && q.correct.includes(option)) btn.classList.add("correct-highlight");
+        btn.addEventListener("click", () => selectOption(btn, option));
+        buttonStack.appendChild(btn);
       });
 
-      if (showAnswers) {
-        const navDiv = document.createElement("div");
-        navDiv.id = "nav-buttons";
-
-        const prevBtn = document.createElement("button");
-        prevBtn.id = "prev-btn";
-        prevBtn.textContent = "Image précédente";
-        prevBtn.disabled = currentQuestion === 0;
-        prevBtn.addEventListener("click", () => {
-          if (currentQuestion > 0) {
-            currentQuestion--;
-            loadQuestion();
-          }
-        });
-
-        const nextBtn = document.createElement("button");
-        nextBtn.id = "next-btn";
-        nextBtn.textContent = currentQuestion < questions.length - 1 ? "SUIVANT" : "Résultats";
-        nextBtn.addEventListener("click", () => {
-          if (currentQuestion < questions.length - 1) {
-            currentQuestion++;
-            loadQuestion();
-          } else {
-            showResults();
-          }
-        });
-
-        navDiv.appendChild(prevBtn);
-        navDiv.appendChild(nextBtn);
-        optionsContainer.appendChild(navDiv);
-      } else {
-        const nextBtn = document.createElement("button");
-        nextBtn.id = "next-btn";
-        nextBtn.textContent = "SUIVANT";
-        nextBtn.addEventListener("click", nextQuestion);
-        optionsContainer.appendChild(nextBtn);
-      }
+      prevBtn.disabled = currentQuestion === 0;
+      nextBtn.textContent = currentQuestion === questions.length - 1 ? "Terminer ✔" : "Suivant ▶";
     }
 
-    function toggleSelection(btn, option) {
+    function selectOption(btn, option) {
       if (showAnswers) return;
-      btn.classList.toggle("selected");
+      document.querySelectorAll(".option-btn").forEach(b => b.classList.remove("selected"));
+      btn.classList.add("selected");
+      answers[currentQuestion] = { selected: option };
     }
 
-    function nextQuestion() {
-      checkAnswer();
-      currentQuestion++;
-      if (currentQuestion < questions.length) {
+    prevBtn.addEventListener("click", () => {
+      if (currentQuestion > 0) { currentQuestion--; loadQuestion(); }
+    });
+
+    nextBtn.addEventListener("click", () => {
+      if (!showAnswers && !answers[currentQuestion]) {
+          alert("Choisis une réponse !");
+          return;
+      }
+      if (currentQuestion < questions.length - 1) {
+        currentQuestion++;
         loadQuestion();
       } else {
         showResults();
       }
+    });
+
+    function showResults() {
+      let score = 0;
+      questions.forEach((q, i) => {
+          if (answers[i] && q.correct.includes(answers[i].selected)) score++;
+      });
+
+      const resultHTML = `
+        <div id="results">
+          <h2>Résultat : ${score} / ${questions.length}</h2>
+          <ul style="list-style:none; padding:0;">
+            ${questions.map((q, i) => {
+              const isCorrect = answers[i] && q.correct.includes(answers[i].selected);
+              return `<li><img src="${q.image}"> <span style="color:${isCorrect?'green':'red'}">${isCorrect?'Correct ✔':'Erreur ✘'}</span></li>`;
+            }).join("")}
+          </ul>
+          <button onclick="location.reload()" class="nav-btn" style="background:#007bff; color:white; width:100%;">Recommencer</button>
+        </div>`;
+      document.getElementById("quiz-container").innerHTML = resultHTML;
     }
-
-    function checkAnswer() {
-      const selected = Array.from(document.querySelectorAll(".selected")).map(b => b.textContent);
-      const correct = questions[currentQuestion].correct;
-      const isCorrect = selected.some(s => correct.includes(s));
-
-      answers.push(isCorrect ? "Bonne réponse" : "Mauvaise réponse");
-      if (isCorrect) score++;
-    }
-
-function showResults() {
-  const resultHTML = `
-    <div id="results">
-      <h2>Résultat : ${score}/${questions.length}</h2>
-      <ul>
-        ${answers.map((res, i) => `
-          <li>
-            <img src="${questions[i].image}" alt="Image ${i+1}">
-            <span class="${res === "Bonne réponse" ? "correct-text" : "incorrect-text"}">
-              Image ${i + 1} : ${res}
-            </span>
-          </li>`).join("")}
-      </ul>
-    </div>
-  `;
-  document.getElementById("quiz-container").innerHTML = resultHTML;
-}
 
     loadQuestion();
   </script>
