@@ -44,7 +44,7 @@
     #question-image {
       width: 100%;
       height: 100%;
-      object-fit: contain; /* L'image dans le quiz reste propre */
+      object-fit: contain;
     }
 
     #zoom-hint {
@@ -135,14 +135,14 @@
     #prev-btn { background: #6c757d; color: white; }
     #next-btn { background: #007bff; color: white; }
 
-    /* --- LIGHTBOX FORCÉE EN PLEIN ÉCRAN --- */
+    /* --- LIGHTBOX INTELLIGENTE --- */
     #lightbox {
       position: fixed;
       top: 0;
       left: 0;
       width: 100vw;
       height: 100dvh;
-      background: rgba(0, 0, 0, 1); /* Fond noir total */
+      background: rgba(0, 0, 0, 0.98); 
       display: none;
       justify-content: center;
       align-items: center;
@@ -151,11 +151,12 @@
     }
 
     #lightbox img {
-      width: 100%;
-      height: 100%;
-      /* object-fit: cover force l'image à remplir tout l'écran, 
-         quitte à l'agrandir fortement (zoom) */
-      object-fit: cover; 
+      /* Ces propriétés forcent l'image à utiliser TOUT l'écran disponible */
+      width: 100vw;
+      height: 100dvh;
+      /* "contain" assure que l'image portrait s'adapte à la hauteur 
+         et l'image paysage à la largeur, sans jamais être déformée ni rognée */
+      object-fit: contain; 
     }
 
     #results { padding: 20px; text-align: center; height: 100%; overflow-y: auto; }
@@ -166,13 +167,13 @@
 <body>
 
   <div id="lightbox">
-    <img id="zoom-img" src="" alt="Plein écran forcé" />
+    <img id="zoom-img" src="" alt="Plein écran" />
   </div>
 
   <div id="quiz-container">
     <div id="image-container">
       <div id="progress"></div>
-      <div id="zoom-hint">🔍 Zoom plein écran</div>
+      <div id="zoom-hint">🔍 Agrandir</div>
       <img id="question-image" src="" alt="Question" />
       <div id="question-text">Quelle est l’origine de cette image ?</div>
     </div>
@@ -212,13 +213,11 @@
     const lightbox = document.getElementById("lightbox");
     const zoomImg = document.getElementById("zoom-img");
 
-    // OUVRIR LA LIGHTBOX
     document.getElementById("image-container").addEventListener("click", () => {
         zoomImg.src = img.src;
         lightbox.style.display = "flex";
     });
 
-    // FERMER LA LIGHTBOX
     lightbox.addEventListener("click", () => {
         lightbox.style.display = "none";
     });
