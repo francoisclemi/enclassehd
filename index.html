@@ -54,7 +54,7 @@
       background: rgba(0,0,0,0.5);
       color: white;
       font-size: 0.7rem;
-      padding: 4px 8px;
+      padding: 4px 10px;
       border-radius: 20px;
       z-index: 5;
     }
@@ -113,7 +113,6 @@
     }
 
     .selected { border-color: #007bff; background: #e3f2fd; font-weight: bold; }
-    .correct-highlight { border: 2.5px solid #00c853; background: #f1f8f4; }
 
     #nav-bar {
       display: flex;
@@ -136,42 +135,25 @@
     #prev-btn { background: #6c757d; color: white; }
     #next-btn { background: #007bff; color: white; }
 
-    /* --- NOUVELLE LIGHTBOX AVEC SCROLL --- */
+    /* --- LIGHTBOX PLEIN ÉCRAN SIMPLIFIÉ --- */
     #lightbox {
       position: fixed;
       top: 0;
       left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.98);
+      width: 100vw;
+      height: 100dvh;
+      background: rgba(0, 0, 0, 0.95);
       display: none;
+      justify-content: center;
+      align-items: center;
       z-index: 9999;
-      overflow: auto; /* Permet le déplacement (pan) */
       cursor: zoom-out;
     }
 
     #lightbox img {
-      width: 200%; /* Zoom x2 */
-      height: auto;
-      display: block;
-      margin: auto; /* Centre l'image si elle est plus petite que le scroll */
-    }
-
-    #close-zoom {
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        background: white;
-        color: black;
-        width: 40px;
-        height: 40px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-weight: bold;
-        box-shadow: 0 0 10px rgba(0,0,0,0.5);
-        z-index: 10000;
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
     }
 
     #results { padding: 20px; text-align: center; height: 100%; overflow-y: auto; }
@@ -182,14 +164,13 @@
 <body>
 
   <div id="lightbox">
-    <div id="close-zoom">X</div>
-    <img id="zoom-img" src="" alt="Zoom" />
+    <img id="zoom-img" src="" alt="Plein écran" />
   </div>
 
   <div id="quiz-container">
     <div id="image-container">
       <div id="progress"></div>
-      <div id="zoom-hint">🔍 Zoom x2</div>
+      <div id="zoom-hint">🔍 Plein écran</div>
       <img id="question-image" src="" alt="Question" />
       <div id="question-text">Quelle est l’origine de cette image ?</div>
     </div>
@@ -229,19 +210,13 @@
     const lightbox = document.getElementById("lightbox");
     const zoomImg = document.getElementById("zoom-img");
 
-    // OUVRIR LE ZOOM
+    // OUVRIR LA LIGHTBOX
     document.getElementById("image-container").addEventListener("click", () => {
         zoomImg.src = img.src;
-        lightbox.style.display = "block";
-        
-        // Petit délai pour centrer le scroll après l'affichage
-        setTimeout(() => {
-            lightbox.scrollLeft = (lightbox.scrollWidth - lightbox.clientWidth) / 2;
-            lightbox.scrollTop = (lightbox.scrollHeight - lightbox.clientHeight) / 2;
-        }, 10);
+        lightbox.style.display = "flex";
     });
 
-    // FERMER LE ZOOM
+    // FERMER LA LIGHTBOX
     lightbox.addEventListener("click", () => {
         lightbox.style.display = "none";
     });
