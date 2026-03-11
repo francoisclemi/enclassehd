@@ -12,14 +12,12 @@
       display: flex;
       justify-content: center;
       align-items: center;
-      height: 100vh;
       height: 100dvh; 
       overflow: hidden;
     }
     
     #quiz-container {
       width: 95vw;
-      height: 94vh;
       height: 94dvh;
       max-width: 500px;
       display: flex;
@@ -28,9 +26,9 @@
       overflow: hidden;
       background: white;
       box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      position: relative;
     }
 
-    /* PRIORITÉ À L'IMAGE : Elle prend tout l'espace disponible */
     #image-container {
       flex-grow: 1; 
       flex-shrink: 1;
@@ -40,23 +38,40 @@
       justify-content: center;
       align-items: center;
       overflow: hidden;
+      cursor: zoom-in;
     }
 
     #question-image {
       width: 100%;
       height: 100%;
-      /* L'image remplit la hauteur max sans déborder ni compresser le bas */
       object-fit: contain; 
     }
 
-    /* ZONE BASSE : Taille fixe/automatique, elle ne rétrécit jamais */
+    #zoom-hint {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: rgba(0,0,0,0.5);
+      color: white;
+      font-size: 0.7rem;
+      padding: 4px 8px;
+      border-radius: 20px;
+      z-index: 5;
+    }
+
     #interactive-area {
       flex-shrink: 0; 
       display: flex;
       flex-direction: column;
       background: #f0f0f0;
       padding: 12px;
-      gap: 8px;
+      gap: 10px;
+    }
+
+    #button-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
     }
 
     #progress {
@@ -68,6 +83,7 @@
       padding: 4px 10px;
       border-radius: 8px;
       font-size: 0.8rem;
+      z-index: 5;
     }
 
     #question-text {
@@ -82,15 +98,11 @@
       font-size: 0.85rem;
       text-align: center;
       width: 80%;
-    }
-
-    #button-stack {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
+      z-index: 5;
     }
 
     .option-btn {
+      width: 100%;
       background: white;
       border: 1.5px solid #ccc;
       border-radius: 8px;
@@ -122,27 +134,62 @@
     }
 
     #prev-btn { background: #6c757d; color: white; }
-    #prev-btn:disabled { opacity: 0.3; }
     #next-btn { background: #007bff; color: white; }
 
-    /* Style pour les résultats */
-    #results {
-      padding: 20px;
-      overflow-y: auto;
-      text-align: center;
+    /* --- NOUVELLE LIGHTBOX AVEC SCROLL --- */
+    #lightbox {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
       height: 100%;
+      background: rgba(0, 0, 0, 0.98);
+      display: none;
+      z-index: 9999;
+      overflow: auto; /* Permet le déplacement (pan) */
+      cursor: zoom-out;
     }
-    #results li {
-      display: flex; align-items: center; gap: 10px;
-      background: #eee; margin-bottom: 8px; padding: 8px; border-radius: 8px;
+
+    #lightbox img {
+      width: 200%; /* Zoom x2 */
+      height: auto;
+      display: block;
+      margin: auto; /* Centre l'image si elle est plus petite que le scroll */
     }
+
+    #close-zoom {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: white;
+        color: black;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        box-shadow: 0 0 10px rgba(0,0,0,0.5);
+        z-index: 10000;
+    }
+
+    #results { padding: 20px; text-align: center; height: 100%; overflow-y: auto; }
+    #results li { display: flex; align-items: center; gap: 10px; background: #eee; margin-bottom: 8px; padding: 8px; border-radius: 8px; }
     #results img { height: 45px; width: 60px; object-fit: cover; border-radius: 4px; }
   </style>
 </head>
 <body>
+
+  <div id="lightbox">
+    <div id="close-zoom">X</div>
+    <img id="zoom-img" src="" alt="Zoom" />
+  </div>
+
   <div id="quiz-container">
     <div id="image-container">
       <div id="progress"></div>
+      <div id="zoom-hint">🔍 Zoom x2</div>
       <img id="question-image" src="" alt="Question" />
       <div id="question-text">Quelle est l’origine de cette image ?</div>
     </div>
@@ -171,7 +218,6 @@
     ];
 
     const options = ["Agence de presse", "Réseaux sociaux", "Images tournées par Hugo Décrypte", "Banque d'images d'illustration", "Je ne sais pas"];
-
     let currentQuestion = 0;
     let answers = [];
 
@@ -180,32 +226,44 @@
     const buttonStack = document.getElementById("button-stack");
     const nextBtn = document.getElementById("next-btn");
     const prevBtn = document.getElementById("prev-btn");
+    const lightbox = document.getElementById("lightbox");
+    const zoomImg = document.getElementById("zoom-img");
 
-    const urlParams = new URLSearchParams(window.location.search);
-    const showAnswers = urlParams.get("showAnswers") === "true";
+    // OUVRIR LE ZOOM
+    document.getElementById("image-container").addEventListener("click", () => {
+        zoomImg.src = img.src;
+        lightbox.style.display = "block";
+        
+        // Petit délai pour centrer le scroll après l'affichage
+        setTimeout(() => {
+            lightbox.scrollLeft = (lightbox.scrollWidth - lightbox.clientWidth) / 2;
+            lightbox.scrollTop = (lightbox.scrollHeight - lightbox.clientHeight) / 2;
+        }, 10);
+    });
+
+    // FERMER LE ZOOM
+    lightbox.addEventListener("click", () => {
+        lightbox.style.display = "none";
+    });
 
     function loadQuestion() {
       const q = questions[currentQuestion];
       img.src = q.image;
       progress.textContent = `${currentQuestion + 1} / ${questions.length}`;
-      
       buttonStack.innerHTML = "";
       options.forEach(option => {
         const btn = document.createElement("button");
         btn.textContent = option;
         btn.classList.add("option-btn");
         if (answers[currentQuestion] && answers[currentQuestion].selected === option) btn.classList.add("selected");
-        if (showAnswers && q.correct.includes(option)) btn.classList.add("correct-highlight");
         btn.addEventListener("click", () => selectOption(btn, option));
         buttonStack.appendChild(btn);
       });
-
       prevBtn.disabled = currentQuestion === 0;
       nextBtn.textContent = currentQuestion === questions.length - 1 ? "Terminer ✔" : "Suivant ▶";
     }
 
     function selectOption(btn, option) {
-      if (showAnswers) return;
       document.querySelectorAll(".option-btn").forEach(b => b.classList.remove("selected"));
       btn.classList.add("selected");
       answers[currentQuestion] = { selected: option };
@@ -216,27 +274,17 @@
     });
 
     nextBtn.addEventListener("click", () => {
-      if (!showAnswers && !answers[currentQuestion]) {
-          alert("Choisis une réponse !");
-          return;
-      }
-      if (currentQuestion < questions.length - 1) {
-        currentQuestion++;
-        loadQuestion();
-      } else {
-        showResults();
-      }
+      if (!answers[currentQuestion]) { alert("Choisis une réponse !"); return; }
+      if (currentQuestion < questions.length - 1) { currentQuestion++; loadQuestion(); }
+      else showResults();
     });
 
     function showResults() {
       let score = 0;
-      questions.forEach((q, i) => {
-          if (answers[i] && q.correct.includes(answers[i].selected)) score++;
-      });
-
+      questions.forEach((q, i) => { if (answers[i] && q.correct.includes(answers[i].selected)) score++; });
       const resultHTML = `
         <div id="results">
-          <h2>Résultat : ${score} / ${questions.length}</h2>
+          <h2>Score : ${score} / ${questions.length}</h2>
           <ul style="list-style:none; padding:0;">
             ${questions.map((q, i) => {
               const isCorrect = answers[i] && q.correct.includes(answers[i].selected);
